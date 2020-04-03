@@ -17,19 +17,23 @@ urlpatterns = [
     # autocomplete functions:
     path('autocomplete-skill', 
         views.SkillAutocomplete.as_view(), 
-        name='autocomplete-dataset',
+        name='autocomplete-skill',
         ),
     path('autocomplete-field', 
         views.FieldAutocomplete.as_view(), 
-        name='autocomplete-publisher',
+        name='autocomplete-field',
         ),
     path('autocomplete-tag', 
         views.TagAutocomplete.as_view(),
-        name='autocomplete-keyword',
+        name='autocomplete-tag',
         ),
     path('autocomplete-project', 
         views.ProjectAutocomplete.as_view(),
-        name='autocomplete-datafield',
+        name='autocomplete-project',
+        ),
+    path('autocomplete-record', 
+        views.ProjectAutocomplete.as_view(),
+        name='autocomplete-record',
         ),
 
 
@@ -60,6 +64,9 @@ urlpatterns = [
     ),
     path('records/update/<int:pk>', views.RecordUpdateView.as_view(), 
          name='record-update'
+    ),
+    path('records/assign/<int:pk>', views.AssignmentUpdateView.as_view(), 
+         name='record-assign'
     ),
     path('projects/update/<int:pk>', views.ProjectUpdateView.as_view(), 
          name='project-update'
