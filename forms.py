@@ -24,6 +24,18 @@ div_skills = Div(
                     ),
                     css_class="row",
 )
+div_name = Div(
+                    Div('cwid',
+                        css_class='col-2',
+                    ),
+                    Div('recordname',
+                        css_class='col-8',
+                    ),
+                    Div('bestnumber',
+                        css_class='col-2',
+                    ),
+                    css_class="row"
+)
 
 div_workload = Div(
                     Div('workloadcovid',
@@ -42,6 +54,11 @@ div_workload = Div(
 class RecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(RecordForm, self).__init__(*args, **kwargs)
+        self.fields['cwid'].label = "CWID"
+        #self.fields['cwid'].initial = self.request.user
+        self.fields['recordname'].label = "Full name"
+        #self.fields['skillsets'].label = ";".join(dir(self.fields['cwid']))
+        self.fields['skillsets'].label = "Skillsets you have"
         self.fields['fieldstrained'].label = "Fields you have been trained in"
         self.helper = FormHelper()
         self.helper.form_id = 'recordForm'
@@ -49,7 +66,8 @@ class RecordForm(forms.ModelForm):
         self.helper.add_input(Submit('submit', 'Submit'))
         self.helper.layout = Layout(
                     Fieldset('<div class="alert alert-info">User availability</div>',
-                            'recordname',
+                            div_name,
+                            'supervisor',
                             div_workload,
                             style="font-weight: bold;",
                     ),
@@ -66,7 +84,10 @@ class RecordForm(forms.ModelForm):
     
     class Meta:
         model = RecordSheet
-        fields = [  'recordname',
+        fields = [  'cwid',
+                    'recordname',
+                    'supervisor', 
+                    'bestnumber',
                     'workloadcovid',
                     'workloadother',
                     'workloadidle',
@@ -75,10 +96,7 @@ class RecordForm(forms.ModelForm):
                     'comments', 
                 ]
 
-        widgets =  {'recordname' : autocomplete.ModelSelect2(
-                                        url='covidskills:autocomplete-publisher'
-                                        ),  
-                    'skillsets' : autocomplete.ModelSelect2Multiple(
+        widgets =  {'skillsets' : autocomplete.ModelSelect2Multiple(
                                         url='covidskills:autocomplete-skill'
                                         ),  
                     'fieldstrained' : autocomplete.ModelSelect2Multiple(
@@ -86,6 +104,34 @@ class RecordForm(forms.ModelForm):
                                         ),                                      
                     }
 
+class AssignmentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(AssignmentForm, self).__init__(*args, **kwargs)
+        self._recordname = self.instance.recordname
+        self.fields['assignedprojects'].label = "List of projects user is assigned to."
+        self.helper = FormHelper()
+        self.helper.form_id = 'assignmentForm'
+        self.helper.form_method = 'post'
+        self.helper.add_input(Submit('submit', 'Submit'))
+        self.helper.layout = Layout(
+                    Fieldset('<div class="alert alert-info">Assign or remove projects for ' + str(self._recordname) + '</div>',
+                            'assignedprojects',
+                            'comments',
+                            style="font-weight: bold;",
+                    ),
+        )
+    
+    class Meta:
+        model = RecordSheet
+        fields = [  'assignedprojects', 
+                    'comments', 
+                    'recordname',
+                ]
+
+        widgets =  {'assignedprojects' : autocomplete.ModelSelect2Multiple(
+                                        url='covidskills:autocomplete-project'
+                                        ),                                     
+                    }
 
 
 class ProjectForm(forms.ModelForm):
