@@ -137,7 +137,7 @@ class Project(models.Model):
     published = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
-        return "{} - {}".format(self.projectname,, self.pi)
+        return "{} - {}".format(self.projectname, self.pi)
 
     def get_absolute_url(self):
         return reverse('covidskills:project-view', kwargs={'pk': self.pk})
