@@ -20,10 +20,10 @@ from .forms import ProjectForm, RecordForm, AssignmentForm
 
 class SkillAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Skill.objects.all()
+        qs = Skill.objects.filter(published=True)
 
         if self.q:
-            qs = qs.filter(
+            qs = qs.filter( 
                             Q(skillname__icontains=self.q) | 
                             Q(skilldefinition__icontains=self.q)
                             )
@@ -31,27 +31,28 @@ class SkillAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
 class FieldAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = StudyField.objects.all()
+        qs = StudyField.objects.filter(published=True)
 
         if self.q:
-            qs =  qs.filter(fieldname__icontains=self.q)
+            qs =  qs.filter(
+                            Q(fieldname__icontains=self.q)
+                            )
         return qs
 
 class TagAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Tag.objects.all()
+        qs = Tag.objects.filter(published=True)
 
         if self.q:
             qs =  qs.filter(
                             Q(tagname__icontains=self.q) | 
                             Q(tagdefinition__icontains=self.q)
-
                             )
         return qs
 
 class ProjectAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_queryset(self):
-        qs = Project.objects.all()
+        qs = Project.objects.filter(published=True)
 
         if self.q:
             qs =  qs.filter(
@@ -403,11 +404,11 @@ class FullSearch(LoginRequiredMixin, generic.TemplateView):
         qs_pj = qs_pj.filter( Q(projectname__icontains=st) |
                               Q(projectdefinition__icontains=st) | 
                               Q(pi__icontains=st)
-        )
+        ).filter(published=True)
         qs_re = RecordSheet.objects.all()
         qs_re = qs_re.filter( Q(recordname__icontains=st) |
                               Q(comments__icontains=st)  
-        )
+        ).filter(published=True)
         context = { "search_str" : st,
                     "qs_skills": qs_sk,
                     "qs_fields": qs_fi,
