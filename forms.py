@@ -65,7 +65,7 @@ class RecordForm(forms.ModelForm):
         )
     
     class Meta:
-        model = Dataset
+        model = RecordSheet
         fields = [  'recordname',
                     'workloadcovid',
                     'workloadother',
@@ -111,7 +111,7 @@ class ProjectForm(forms.ModelForm):
         )
     
     class Meta:
-        model = DataUseAgreement
+        model = Project
         fields = [  'projectname',
                     'projectdefinition',
                     'pi',

@@ -187,7 +187,7 @@ class ProjectIndexView(LoginRequiredMixin, generic.ListView):
 ####################
 
 class SkillDetailView(LoginRequiredMixin, generic.DetailView):
-    model = Dataset
+    model = Skill
     template_name = 'covidskills/detail_skill.html'
     
     def get_context_data(self, **kwargs):
@@ -198,7 +198,7 @@ class SkillDetailView(LoginRequiredMixin, generic.DetailView):
         return context
         
 class FieldDetailView(LoginRequiredMixin, generic.DetailView):
-    model = DataAccess
+    model = StudyField
     template_name = 'datacatalog/detail_field.html'
     
     def get_context_data(self, **kwargs):
@@ -209,7 +209,7 @@ class FieldDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
 class TagDetailView(PermissionRequiredMixin, generic.DetailView):
-    model = DataUseAgreement
+    model = Tag
     template_name = 'covidskills/detail_tag.html'
 
     def get_context_data(self, **kwargs):
@@ -220,7 +220,7 @@ class TagDetailView(PermissionRequiredMixin, generic.DetailView):
         return context
         
 class RecordDetailView(LoginRequiredMixin, generic.DetailView):
-    model = Keyword
+    model = RecordSheet
     template_name = 'covidskills/detail_record.html'
     
     def get_context_data(self, **kwargs):
@@ -231,7 +231,7 @@ class RecordDetailView(LoginRequiredMixin, generic.DetailView):
         return context
         
 class ProjectDetailView(LoginRequiredMixin, generic.DetailView):
-    model = DataProvider
+    model = Project
     template_name = 'covidskills/detail_project.html'
     
     def get_context_data(self, **kwargs):
@@ -280,7 +280,7 @@ class FieldCreateView(PermissionRequiredMixin, CreateView):
         return super(FieldCreateView, self).form_valid(form)
 
 class TagCreateView(LoginRequiredMixin, CreateView):
-    model = DataAccess
+    model = Tag
     fields = [  'tagname',
                 'tagdefinition',
     ]
@@ -330,6 +330,7 @@ class SkillUpdateView(PermissionRequiredMixin, UpdateView):
     model = Skill
     fields = [  'skillname',
                 'skilldefinition',
+    ]
     template_name = "covidskills/basic_form.html"
     permission_required = 'covidskills.change_skill'
 
@@ -383,13 +384,13 @@ class FullSearch(LoginRequiredMixin, generic.TemplateView):
         qs_tg = qs_tg.filter( Q(tagname__icontains=st) |
                               Q(tagdefinition__icontains=st)  
         )
-        qs_pj = DataField.objects.all()
+        qs_pj = Project.objects.all()
         qs_pj = qs_pj.filter( Q(projectname__icontains=st) |
                               Q(projectdefinition__icontains=st) | 
-                              Q(pi_icontains=st)
+                              Q(pi__icontains=st)
         )
         qs_re = RecordSheet.objects.all()
-        qs_re = qs_re.filter( Q(recordname__icontains=st) |
+        qs_re = qs_re.filter( Q(recordname__first_name__icontains=st) |
                               Q(comments__icontains=st)  
         )
         context = { "search_str" : st,
