@@ -1,0 +1,85 @@
+{% extends 'covidskills/base-covidskills.html' %}
+{% load project_tags %}
+
+
+{% block content %}
+
+<style>
+/* styling of the tabs*/
+#exTab1 .tab-content {
+  color : black;
+  padding : 5px 15px;
+}
+
+#exTab1 .nav-tabs > li > a {
+  border-radius: 4px 4px 0 0;
+}
+</style>
+
+<a type="button" class="btn btn-primary" href="{% url 'datacatalog:datasets' %}">View {{ ds_count }} skillsets</a>
+
+<a type="button" class="btn btn-primary" href="{% url 'datacatalog:providers' %}">View {{ pub_count }} fields</a>
+
+{% if request.user|has_group:"dua_viewing_privileges" %}
+<a type="button" class="btn btn-primary" href="{% url 'datacatalog:duas' %}">View {{ dua_count }} volunteer data</a>
+{% endif %}
+
+<a type="button" class="btn btn-primary" href="{% url 'datacatalog:access' %}">View {{ access_count }} projects</a>
+
+<a type="button" class="btn btn-primary" href="{% url 'datacatalog:keywords' %}">View {{kw_count }} tags</a>
+</br>
+</br>
+
+<div class="container">
+{% for dataset in dataset_list %}
+    
+     <div class="card">
+      <div class="card-header">
+        <a href="{% url 'datacatalog:dataset-view' dataset.pk %}">
+            <h4>{{ dataset.title }}</h4>
+        </a>
+      </div>
+      <div class="card-body">
+      
+                  
+            {% if dataset.publisher %}
+            <h4>
+                Data Provider: 
+                <a href="{% url 'datacatalog:provider-view' dataset.publisher.pk %}">
+                    {{ dataset.publisher }}
+                </a>
+            </h4>
+            {% endif %}
+
+            <h4>description</h4>
+            <p> {{ dataset.description|linebreaks }}</p>
+
+
+            <table class="table table-striped table-hover">
+                <tr>
+                    <td>Record Period Start</td>
+                    <td>{{ dataset.period_start }}</td>
+                </tr>
+                <tr>
+                    <td>Record Period End</td>
+                    <td>{{ dataset.period_end }}</td>
+                </tr>
+                <tr>
+                    <td>Keywords</td>
+                    <td>{% for kw in dataset.keywords.all %}
+                            <a href="{% url 'datacatalog:keyword-view' kw.pk %}">
+                                {{ kw.keyword }}
+                            </a></br>
+                        {% endfor %}
+                    </td>
+                </tr>
+
+            </table>
+
+       
+      </div>
+     </div>
+{% endfor %}  
+</div>
+
+{% endblock %}
