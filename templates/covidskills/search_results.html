@@ -1,4 +1,4 @@
-{% extends 'datacatalog/base-catalog.html' %}
+{% extends 'covidskills/base-covidskills.html' %}
 
 {% load bootstrap4 %}
 {% load project_tags %}
@@ -10,42 +10,42 @@
 
 <h1>Search results for "{{ search_str }}"</h1>
 
-{% if qs_ds|length > 0 %}
-<h2>Datasets</h2>
-{% with qs_ds as dataset_list %}
-    {% include "datacatalog/table_datasets.html" %}
+{% if qs_skills|length > 0 %}
+<h2>Skills</h2>
+{% with qs_skills as skill_list %}
+    {% include "covidskills/table_skills.html" %}
 {% endwith %}
 {% else %}
-<h2>No results found among datasets</h2>
+<h5>No results found among listed skills</h5>
 {% endif %}
 
-{% if qs_df|length > 0 %}
-<h2>Data Fields</h2>
-{% with qs_df as datafield_list %}
-    {% include "datacatalog/table_datafield.html" %}
+{% if qs_fields|length > 0 %}
+<h2>Fields of Study</h2>
+{% with qs_fields as field_list %}
+    {% include "covidskills/table_fields.html" %}
 {% endwith %}
 {% else %}
-<h2>No results found among data fields</h2>
+<h5>No results found among fields of study</h5>
 {% endif %}
 
-{% if request.user|has_group:"dua_viewing_privileges" %}
-{% if qs_dua|length > 0 %}
-<h2>DUAs</h2>
-{% with qs_dua as dua_list %}
-    {% include "datacatalog/table_duas.html" %}
+{% if request.user|has_group:"record_viewing_privileges" %}
+{% if qs_records|length > 0 %}
+<h2>Skill records</h2>
+{% with qs_records as record_list %}
+    {% include "covidskills/table_records.html" %}
 {% endwith %}
 {% else %}
-<h2>No results found among DUAs</h2>
+<h5>No results found among skill records</h5>
 {% endif %}
 {% endif %}
 
-{% if qs_kw|length > 0 %}
-<h2>Keywords</h2>
+{% if qs_projects|length > 0 %}
+<h2>Projects</h2>
 {% with qs_kw as keyword_list %}
-    {% include "datacatalog/table_keywords.html" %}
+    {% include "covidskills/table_projects.html" %}
 {% endwith %}
 {% else %}
-<h2>No results found among Keywords</h2>
+<h5>No results found among projects</h5>
 {% endif %}
 
 

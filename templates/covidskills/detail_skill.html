@@ -1,0 +1,45 @@
+{% extends 'covidskills/base-covidskills.html' %}
+
+{# Load the tag library #}
+{% load bootstrap4 %}
+{% load project_tags %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block content %}
+
+<style>
+/* styling of the tabs*/
+#exTab1 .tab-content {
+  color : black;
+  padding : 5px 15px;
+}
+
+#exTab1 .nav-tabs > li > a {
+  border-radius: 4px 4px 0 0;
+}
+</style>
+
+
+
+<h1>
+    Skill: {{ skill.skillname }} 
+</h1>
+<p class="text-muted">{{ skill.skilldefinition }}</p>
+
+
+{% if request.user|has_group:"record_viewing_privileges" %}
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:skill-update' skill.pk %}">Update skill details</a>
+{% endif %}
+
+</br></br>
+
+
+
+{% endblock %}
+
