@@ -7,10 +7,10 @@
     </tr>
 </thead>
 
-{% for sk in skill_list %}
+{% for f in field_list %}
     <tr>
-    <td><a href="{% url 'covidskills:skill-view' sk.pk %}">{{ sk.skillname }}</a></td>
-    <td> {{ sk.skilldefinition|linebreaks }}</td>
+    <td><a href="{% url 'covidskills:field-view' f.pk %}">{{ f.fieldname }}</a></td>
+    <td> {{ f.fielddefinition|linebreaks }}</td>
     </tr>
 {% endfor %}
 </table>

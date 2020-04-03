@@ -28,26 +28,21 @@
 
 
 <h1>
-    Skill: {{ skill.skillname }} 
+    Field of study: {{ studyfield.fieldname }} 
 </h1>
-<p class="text-muted">{{ skill.skilldefinition }}</p>
+<p class="text-muted">{{ studyfield.fielddefinition }}</p>
 
 
 {% if request.user|has_group:"record_viewing_privileges" %}
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:skill-update' skill.pk %}">Update skill details</a>
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:field-update' studyfield.pk %}">Update field details</a>
 {% endif %}
 
 </br></br>
-<h3>People with this skill</h3>
+<h3>People trained in this field:</h3>
 
-{% with skill.recordsheet_set.all as record_list %}
+{% with studyfield.recordsheet_set.all as record_list %}
     {% include "covidskills/table_records.html" %}
 {% endwith %}
-
-
-
-
-</br></br>
 
 
 

@@ -28,24 +28,14 @@
 
 
 <h1>
-    Skill: {{ skill.skillname }} 
+    Skill: {{ tag.tagname }} 
 </h1>
-<p class="text-muted">{{ skill.skilldefinition }}</p>
+<p class="text-muted">{{ tag.tagdefinition }}</p>
 
 
 {% if request.user|has_group:"record_viewing_privileges" %}
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:skill-update' skill.pk %}">Update skill details</a>
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:tag-update' tag.pk %}">Update tag details</a>
 {% endif %}
-
-</br></br>
-<h3>People with this skill</h3>
-
-{% with skill.recordsheet_set.all as record_list %}
-    {% include "covidskills/table_records.html" %}
-{% endwith %}
-
-
-
 
 </br></br>
 

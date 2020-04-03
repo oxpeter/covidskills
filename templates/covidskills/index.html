@@ -15,67 +15,46 @@
   border-radius: 4px 4px 0 0;
 }
 </style>
-
-<a type="button" class="btn btn-primary" href="{% url 'datacatalog:datasets' %}">View {{ ds_count }} skillsets</a>
-
-<a type="button" class="btn btn-primary" href="{% url 'datacatalog:providers' %}">View {{ pub_count }} fields</a>
-
-{% if request.user|has_group:"dua_viewing_privileges" %}
-<a type="button" class="btn btn-primary" href="{% url 'datacatalog:duas' %}">View {{ dua_count }} volunteer data</a>
+{% if own_record|length == 0 %}
+<a type="button" class="btn btn-danger" href="{% url 'covidskills:record-add' %}">Create my skill record</a>
+{% else %}
+    {% for record in own_record %}
+    <a type="button" class="btn btn-danger" href="{% url 'covidskills:record-update' record.pk %}">Update my skill record</a>
+    <a type="button" class="btn btn-warning" href="{% url 'covidskills:record-view' record.pk %}">View my skill record</a>
+    {% endfor %}
 {% endif %}
 
-<a type="button" class="btn btn-primary" href="{% url 'datacatalog:access' %}">View {{ access_count }} projects</a>
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:skills' %}">View {{ skill_count }} skillsets</a>
 
-<a type="button" class="btn btn-primary" href="{% url 'datacatalog:keywords' %}">View {{kw_count }} tags</a>
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:fields' %}">View {{ field_count }} fields</a>
+
+{% if request.user|has_group:"dua_viewing_privileges" %}
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:records' %}">View {{ record_count }} volunteer data</a>
+{% endif %}
+
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:projects' %}">View {{ project_count }} projects</a>
+
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:tags' %}">View {{tag_count }} tags</a>
 </br>
 </br>
-
+{{ uservals }}
 <div class="container">
-{% for dataset in dataset_list %}
+{% for project in project_list %}
     
      <div class="card">
       <div class="card-header">
-        <a href="{% url 'datacatalog:dataset-view' dataset.pk %}">
-            <h4>{{ dataset.title }}</h4>
+        <a href="{% url 'covidskills:project-view' project.pk %}">
+            <h4>{{ project.projectname }} ({{ project.pi }})</h4>
         </a>
       </div>
       <div class="card-body">
-      
-                  
-            {% if dataset.publisher %}
-            <h4>
-                Data Provider: 
-                <a href="{% url 'datacatalog:provider-view' dataset.publisher.pk %}">
-                    {{ dataset.publisher }}
-                </a>
-            </h4>
-            {% endif %}
-
-            <h4>description</h4>
-            <p> {{ dataset.description|linebreaks }}</p>
-
-
-            <table class="table table-striped table-hover">
-                <tr>
-                    <td>Record Period Start</td>
-                    <td>{{ dataset.period_start }}</td>
-                </tr>
-                <tr>
-                    <td>Record Period End</td>
-                    <td>{{ dataset.period_end }}</td>
-                </tr>
-                <tr>
-                    <td>Keywords</td>
-                    <td>{% for kw in dataset.keywords.all %}
-                            <a href="{% url 'datacatalog:keyword-view' kw.pk %}">
-                                {{ kw.keyword }}
-                            </a></br>
-                        {% endfor %}
-                    </td>
-                </tr>
-
-            </table>
-
+            <h5>{{ project.recordsheet_set.count }} people assigned</h5>
+            <p> {{ project.projectdefinition|linebreaks }}</p>
+        
+            <h5>Skills required:</h5>
+            {% with project.skillsrequired.all as skill_list %}
+                {% include "covidskills/table_skills.html" %}
+            {% endwith %}
        
       </div>
      </div>

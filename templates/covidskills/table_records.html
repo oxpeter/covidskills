@@ -1,0 +1,24 @@
+
+<table class="table table-striped table-hover" id="SkillTable">
+<thead class="thead-secondary">
+    <tr>
+        <th>Name</th>
+        <th>CWID</th>
+        <th>Workload - COVID-related</th>
+        <th>Workload - regular-tasks</th>
+        <th>Workload - availability</th>
+        <th>Projects assigned to</th>
+    </tr>
+</thead>
+
+{% for r in record_list %}
+    <tr>
+    <td><a href="{% url 'covidskills:record-view' r.pk %}">{{ r.recordname }}</a></td>
+    <td> {{ r.cwid }}</td>
+    <td> {{ r.workloadcovid }} %</td>
+    <td> {{ r.workloadother }} %</td>
+    <td> {{ r.workloadidle }} %</td>
+    <td> {{ r.assignedprojects.count }}</td>
+    </tr>
+{% endfor %}
+</table>

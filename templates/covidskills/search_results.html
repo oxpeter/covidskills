@@ -35,13 +35,13 @@
     {% include "covidskills/table_records.html" %}
 {% endwith %}
 {% else %}
-<h5>No results found among skill records</h5>
+<h5>No results found among record sheets</h5>
 {% endif %}
 {% endif %}
 
 {% if qs_projects|length > 0 %}
 <h2>Projects</h2>
-{% with qs_kw as keyword_list %}
+{% with qs_projects as project_list %}
     {% include "covidskills/table_projects.html" %}
 {% endwith %}
 {% else %}

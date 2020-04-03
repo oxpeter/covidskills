@@ -1,0 +1,17 @@
+{% extends 'covidskills/base-covidskills.html' %}
+
+{% load project_tags %}
+
+{% block content %}
+<h1>
+All {{ tag_list|length }} tags:
+</h1>
+
+{% include "covidskills/table_tags.html" %}
+
+
+{% if request.user|has_group:"record_viewing_privileges" %}
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:tag-add' %}">Add new tag</a>
+{% endif %}
+
+{% endblock content %}

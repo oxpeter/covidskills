@@ -1,0 +1,79 @@
+{% extends 'covidskills/base-covidskills.html' %}
+
+{# Load the tag library #}
+{% load bootstrap4 %}
+{% load project_tags %}
+
+{# Load CSS and JavaScript #}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+{% block content %}
+
+<style>
+/* styling of the tabs*/
+#exTab1 .tab-content {
+  color : black;
+  padding : 5px 15px;
+}
+
+#exTab1 .nav-tabs > li > a {
+  border-radius: 4px 4px 0 0;
+}
+</style>
+
+
+
+<h1>
+    Project: {{ project.projectname }} 
+</h1>
+<p class="text-muted">PI: {{ project.pi }}</p>
+
+<h3> Description:</h3>
+<p>{{project.projectdefinition|linebreaks}}</p>
+
+<table class="table table-striped table-hover">
+                <tr>
+                    <td>Project Director / PI</td>
+                    <td>{{ project.pi }}</td>
+                </tr>
+                <tr>
+                    <td>URL for details</td>
+                    <td><a href="{{ project.detailurl }}">{{ project.detailurl }}</a></td>
+                </tr>
+                
+</table>
+
+
+<h3>Skills required</h3>
+{% with project.skillsrequired.all as skill_list %}
+    {% include "covidskills/table_skills.html" %}
+{% endwith %}
+
+
+<h3>People assigned to this project</h3>
+{% with project.recordsheet_set.all as record_list %}
+    {% include "covidskills/table_records.html" %}
+{% endwith %}
+
+<h3>People with skills required by this project</h3>
+{% for sk in project.skillsrequired.all %}
+<h5>{{ sk.skillname }}:</h5>
+{% with sk.recordsheet_set.all as record_list %}
+    {% include "covidskills/table_records.html" %}
+{% endwith %}
+
+{% endfor %}
+
+{% if request.user|has_group:"record_viewing_privileges" %}
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:project-update' project.pk %}">Update project details</a>
+{% endif %}
+
+</br></br>
+
+
+{% endblock %}
+
