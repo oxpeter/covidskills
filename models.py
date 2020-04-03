@@ -129,7 +129,7 @@ class Project(models.Model):
    
     # list of skills required for this project
     skillsrequired = models.ManyToManyField(Skill)
-   
+       
     # this is set to true after being checked by the Data Catalog curation team
     curated = models.BooleanField(null=True, blank=True)
 
@@ -141,6 +141,7 @@ class Project(models.Model):
 
     def get_absolute_url(self):
         return reverse('covidskills:project-view', kwargs={'pk': self.pk})
+
                 
 class RecordSheet(models.Model):
     """
@@ -165,31 +166,30 @@ class RecordSheet(models.Model):
     # time spent on 'filler' tasks or other replaceable activities
     workloadidle = models.IntegerField("Availability (%)")
     
+    # cwid of the person the record pertains to
+    cwid = models.CharField(max_length=16, unique=True)
+    
     # name of the person the record pertains to
-    recordname = models.ForeignKey(User, on_delete=models.CASCADE,
-                                    related_name="recordname_user")
+    recordname = models.CharField(max_length=256, unique=True)
     
     # list of skillsets the person has expertise in
-    skillsets = models.ManyToManyField(Skill)
+    skillsets = models.ManyToManyField(Skill, blank=True)
 
     # list of fields the person has training in
-    fieldstrained = models.ManyToManyField(StudyField)
+    fieldstrained = models.ManyToManyField(StudyField, blank=True)
     
     # best contact number
-    bestnumber = models.CharField(max_length=32)
+    bestnumber = models.CharField("Best contact number", max_length=32, 
+                                    blank=True, null=True)
     
     # supervisor
-    supervisor = models.ForeignKey(User, on_delete=models.CASCADE,
-                                    related_name="supervisor_user",
-                                    null=True,
-                                    blank=True,
-                                    )
+    supervisor = models.CharField(max_length=256, null=True, blank=True)
     
     # projects that the user has been assigned to
-    assignedprojects = models.ManyToManyField(Project)
+    assignedprojects = models.ManyToManyField(Project, blank=True)
     
     # field to capture any other information
-    comments = models.TextField()
+    comments = models.TextField(null=True, blank=True)
 
     # this is set to true after being checked by the Data Catalog curation team
     curated = models.BooleanField(null=True, blank=True)
@@ -199,8 +199,8 @@ class RecordSheet(models.Model):
 
     def __str__(self):
         return "{}: {} skills {} assigned projects".format(self.recordname, 
-                                                            len(self.skillsets), 
-                                                            len(self.assignedprojects))
+                                                            len(self.skillsets.all()), 
+                                                            len(self.assignedprojects.all()))
 
     def get_absolute_url(self):
         return reverse('covidskills:record-view', kwargs={'pk': self.pk})
