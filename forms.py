@@ -59,7 +59,7 @@ class RecordForm(forms.ModelForm):
         self.fields['recordname'].label = "Full name"
         #self.fields['skillsets'].label = ";".join(dir(self.fields['cwid']))
         self.fields['skillsets'].label = "Skillsets you have"
-        self.fields['fieldstrained'].label = "Fields you have been trained in"
+        self.fields['fieldstrained'].label = "Fields you have a tertiary qualification in (Bachelors, Masters, PhD, etc)"
         self.helper = FormHelper()
         self.helper.form_id = 'recordForm'
         self.helper.form_method = 'post'
@@ -107,14 +107,13 @@ class RecordForm(forms.ModelForm):
 class AssignmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)
-        self._recordname = self.instance.recordname
         self.fields['assignedprojects'].label = "List of projects user is assigned to."
         self.helper = FormHelper()
         self.helper.form_id = 'assignmentForm'
         self.helper.form_method = 'post'
         self.helper.add_input(Submit('submit', 'Submit'))
         self.helper.layout = Layout(
-                    Fieldset('<div class="alert alert-info">Assign or remove projects for ' + str(self._recordname) + '</div>',
+                    Fieldset('<div class="alert alert-info">Assign or remove projects for ' + str(self.instance.recordname) + '</div>',
                             'assignedprojects',
                             'comments',
                             style="font-weight: bold;",
@@ -125,7 +124,6 @@ class AssignmentForm(forms.ModelForm):
         model = RecordSheet
         fields = [  'assignedprojects', 
                     'comments', 
-                    'recordname',
                 ]
 
         widgets =  {'assignedprojects' : autocomplete.ModelSelect2Multiple(
