@@ -15,26 +15,42 @@
   border-radius: 4px 4px 0 0;
 }
 </style>
+<div class="card bg-dark py-3 px-3 my-2">
 {% if own_record|length == 0 %}
 <a type="button" class="btn btn-danger" href="{% url 'covidskills:record-add' %}">Create my skill record</a>
 {% else %}
     {% for record in own_record %}
-    <a type="button" class="btn btn-danger" href="{% url 'covidskills:record-update' record.pk %}">Update my skill record</a>
-    <a type="button" class="btn btn-warning" href="{% url 'covidskills:record-view' record.pk %}">View my skill record</a>
+    <a type="button" class="btn btn-danger my-2" href="{% url 'covidskills:record-update' record.pk %}">Update my skill record</a>
+    <a type="button" class="btn btn-warning my-2" href="{% url 'covidskills:record-view' record.pk %}">View my skill record</a>
     {% endfor %}
 {% endif %}
+</div>
 
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:skills' %}">View {{ skill_count }} skillsets</a>
+<div class="d-flex justify-content-around">
+    <a type="button" 
+    class="btn btn-primary" 
+    href="{% url 'covidskills:skills' %}">View {{ skill_count }} skillsets</a>
 
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:fields' %}">View {{ field_count }} fields</a>
+    <a type="button" 
+    class="btn btn-primary" 
+    href="{% url 'covidskills:fields' %}">View {{ field_count }} fields</a>
 
-{% if request.user|has_group:"dua_viewing_privileges" %}
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:records' %}">View {{ record_count }} volunteer data</a>
-{% endif %}
+    {% if request.user|has_group:"dua_viewing_privileges" %}
+    <a type="button" 
+    class="btn btn-primary" 
+    href="{% url 'covidskills:records' %}">View {{ record_count }} skillset records</a>
+    {% endif %}
 
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:projects' %}">View {{ project_count }} projects</a>
+    <a type="button" 
+    class="btn btn-primary" 
+    href="{% url 'covidskills:projects' %}">View {{ project_count }} projects</a>
 
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:tags' %}">View {{tag_count }} tags</a>
+    {% if request.user|has_group:"dua_viewing_privileges" %}
+    <a type="button" 
+    class="btn btn-primary" 
+    href="{% url 'covidskills:tags' %}">View {{tag_count }} tags</a>
+    {% endif %}
+</div>
 </br>
 </br>
 {{ uservals }}
