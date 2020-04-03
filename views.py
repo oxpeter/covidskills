@@ -12,7 +12,7 @@ from django.urls import reverse_lazy, reverse
 
 from .models import Skill, Tag, StudyField, Project, RecordSheet
 
-from .forms import ProjectForm, RecordForm
+from .forms import ProjectForm, RecordForm, AssignmentForm
 
 ####################################
 ######  AUTOCOMPLETE  VIEWS   ######
@@ -76,6 +76,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         return ds
         
     def get_context_data(self, **kwargs):
+        own_record = RecordSheet.objects.filter(cwid=self.request.user)
         skill_count = Skill.objects.filter(published=True).count()
         record_count = RecordSheet.objects.filter(published=True).count()
         tag_count = Tag.objects.filter(published=True).count()
@@ -83,7 +84,8 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         project_count = Project.objects.filter(published=True).count()
         
         context = super(IndexView, self).get_context_data(**kwargs)
-        context.update({
+        context.update({ 
+                        'own_record'     : own_record,
                         'skill_count'    : skill_count, 
                         'record_count'   : record_count,
                         'tag_count'      : tag_count,
@@ -199,7 +201,7 @@ class SkillDetailView(LoginRequiredMixin, generic.DetailView):
         
 class FieldDetailView(LoginRequiredMixin, generic.DetailView):
     model = StudyField
-    template_name = 'datacatalog/detail_field.html'
+    template_name = 'covidskills/detail_field.html'
     
     def get_context_data(self, **kwargs):
         
@@ -268,7 +270,7 @@ class FieldCreateView(PermissionRequiredMixin, CreateView):
     fields = [  'fieldname',
                 'fielddefinition',
     ]
-    template_name = "datacatalog/basic_form.html"
+    template_name = "covidskills/basic_form.html"
     permission_required = 'covidskills.add_studyfield'
     # default success_url should be to the object page defined in model.
     
@@ -299,6 +301,12 @@ class RecordCreateView(LoginRequiredMixin, CreateView):
     form_class = RecordForm
     template_name = "covidskills/basic_crispy_form.html"
     # default success_url should be to the object page defined in model.
+    
+    def get_initial(self):
+        #return super(RecordCreateView, self).get_initial(form)
+        return { 'cwid': self.request.user,
+                 'recordname' : self.request.user.get_full_name(),
+         }
     
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -354,6 +362,13 @@ class RecordUpdateView(LoginRequiredMixin, UpdateView):
     model = RecordSheet
     form_class = RecordForm
     template_name = "covidskills/basic_crispy_form.html"
+
+class AssignmentUpdateView(LoginRequiredMixin, UpdateView):
+    "This is a record update view with limited fields"
+    model = RecordSheet
+    form_class = AssignmentForm
+    template_name = "covidskills/basic_crispy_form.html"
+    
     
 class ProjectUpdateView(PermissionRequiredMixin, UpdateView):
     model = Project
@@ -390,7 +405,7 @@ class FullSearch(LoginRequiredMixin, generic.TemplateView):
                               Q(pi__icontains=st)
         )
         qs_re = RecordSheet.objects.all()
-        qs_re = qs_re.filter( Q(recordname__first_name__icontains=st) |
+        qs_re = qs_re.filter( Q(recordname__icontains=st) |
                               Q(comments__icontains=st)  
         )
         context = { "search_str" : st,
