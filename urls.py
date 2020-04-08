@@ -35,6 +35,10 @@ urlpatterns = [
         views.ProjectAutocomplete.as_view(),
         name='autocomplete-record',
         ),
+    path('autocomplete-user', 
+        views.UserAutocomplete.as_view(),
+        name='autocomplete-user',
+        ),
 
 
     # detail views

@@ -17,8 +17,8 @@ div_skills = Div(
                     HTML("""
                             <a  href="{% url 'covidskills:skill-add' %}"
                                 type="button" 
-                                class="btn btn-success">
-                                    Create new field
+                                class="btn btn-success btn-sml">
+                                    Create new skill
                             </a>
                         """
                     ),
@@ -37,19 +37,20 @@ div_name = Div(
                     css_class="row"
 )
 
-div_workload = Div(
-                    Div('workloadcovid',
-                        css_class='col-4',
-                    ),
-                    Div('workloadother',
-                        css_class='col-4',
-                    ),
-                    Div('workloadidle',
-                        css_class='col-4',
-                    ),
-                    css_class="row"
-)
-
+def three_equal(ONE,TWO,THREE):
+    div_thirds = Div(
+                        Div(ONE,
+                            css_class='col-4',
+                        ),
+                        Div(TWO,
+                            css_class='col-4',
+                        ),
+                        Div(THREE,
+                            css_class='col-4',
+                        ),
+                        css_class="row"
+    )
+    return div_thirds
 
 class RecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -58,7 +59,7 @@ class RecordForm(forms.ModelForm):
         #self.fields['cwid'].initial = self.request.user
         self.fields['recordname'].label = "Full name"
         #self.fields['skillsets'].label = ";".join(dir(self.fields['cwid']))
-        self.fields['skillsets'].label = "Skillsets you have"
+        self.fields['skillsets'].label = "Employee skills"
         self.fields['fieldstrained'].label = "Fields you have a tertiary qualification in (Bachelors, Masters, PhD, etc)"
         self.helper = FormHelper()
         self.helper.form_id = 'recordForm'
@@ -68,11 +69,13 @@ class RecordForm(forms.ModelForm):
                     Fieldset('<div class="alert alert-info">User availability</div>',
                             div_name,
                             'supervisor',
-                            div_workload,
+                            three_equal("remotetime", "deferdays","deferlimit"),
+                            "deferimpact",
                             style="font-weight: bold;",
                     ),
                     Fieldset('<div class="alert alert-info">Skills and Training</div>',
                             div_skills,
+                            'strongskills',
                             'fieldstrained',
                             style="font-weight: bold;",
                     ),
@@ -88,20 +91,28 @@ class RecordForm(forms.ModelForm):
                     'recordname',
                     'supervisor', 
                     'bestnumber',
-                    'workloadcovid',
-                    'workloadother',
-                    'workloadidle',
+                    "remotetime", 
+                    "deferdays",
+                    "deferlimit",
+                    'deferimpact',
                     'skillsets',
+                    'strongskills',
                     'fieldstrained', 
                     'comments', 
                 ]
 
         widgets =  {'skillsets' : autocomplete.ModelSelect2Multiple(
                                         url='covidskills:autocomplete-skill'
-                                        ),  
+                                        ),
+                    'strongskills' : autocomplete.ModelSelect2Multiple(
+                                        url='covidskills:autocomplete-skill'
+                                        ),
                     'fieldstrained' : autocomplete.ModelSelect2Multiple(
                                         url='covidskills:autocomplete-field'
-                                        ),                                      
+                                        ),  
+                    'supervisor' : autocomplete.ModelSelect2(
+                                        url='covidskills:autocomplete-user'
+                                        ),                                                         
                     }
 
 class AssignmentForm(forms.ModelForm):
@@ -135,7 +146,7 @@ class AssignmentForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
-        self.fields['pi'].label = "Principal Investigator / Project Director"
+        self.fields['pi'].label = "Project lead / supervisor"
         self.helper = FormHelper()
         self.helper.form_id = 'ProjectForm'
         self.helper.form_method = 'post'
@@ -145,6 +156,7 @@ class ProjectForm(forms.ModelForm):
                             'projectname',
                             'projectdefinition',
                             'pi',
+                            three_equal('priority', 'projecttype', 'timeneeded'),
                             'detailurl',
                             style="font-weight: bold;",
                     ),
@@ -159,6 +171,9 @@ class ProjectForm(forms.ModelForm):
         fields = [  'projectname',
                     'projectdefinition',
                     'pi',
+                    'priority', 
+                    'projecttype', 
+                    'timeneeded',
                     'detailurl',
                     'skillsrequired',
                 ]

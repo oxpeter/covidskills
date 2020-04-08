@@ -7,12 +7,15 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormVi
 from django.db.models import Q
 
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import User
 
 from django.urls import reverse_lazy, reverse
 
 from .models import Skill, Tag, StudyField, Project, RecordSheet
 
 from .forms import ProjectForm, RecordForm, AssignmentForm
+
+import six 
 
 ####################################
 ######  AUTOCOMPLETE  VIEWS   ######
@@ -62,6 +65,21 @@ class ProjectAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
         return qs
 
 
+class UserAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def get_result_label(self, item):
+        return "{} {} ({})".format(item.first_name, item.last_name, item.username) 
+                                     
+        
+    def get_queryset(self):
+        qs = User.objects.all()
+
+        if self.q:
+            qs =  qs.filter(
+                            Q(username__icontains=self.q) |
+                            Q(first_name__icontains=self.q) |
+                            Q(last_name__icontains=self.q)
+            ) 
+        return qs
 ###################
 ### Index views ###
 ###################
