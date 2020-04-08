@@ -3,13 +3,22 @@
 {% load project_tags %}
 
 {% block content %}
-<h1>
-All {{ record_list|length }} skill records:
-</h1>
+
 
 {% if request.user|has_group:"record_viewing_privileges" %}
-    {% include "covidskills/table_records.html" %}
+        <h2>All {{ record_list|length }} employee skill records</h2>
+        {% include "covidskills/table_records.html" %}
+{% elif request.user.pk in supervisors %}
+        <h2>Skill records for my staff</h2>
+        {% include "covidskills/table_records.html" %}
+
+        <h2>All {{ record_list|length }} employee skill records</h2>
+        {% include "covidskills/table_records_min.html" %}
+{% else %}
+        <h2>All {{ record_list|length }} skill records</h2>
+        {% include "covidskills/table_records_min.html" %}
 {% endif %}
+
 
 
 <a type="button" class="btn btn-primary" href="{% url 'covidskills:record-add' %}">Add new record</a>

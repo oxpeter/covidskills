@@ -38,14 +38,71 @@
 {% endif %}
 
 </br></br>
-<h3>People with this skill</h3>
 
-{% with skill.recordsheet_set.all as record_list %}
-    {% include "covidskills/table_records.html" %}
-{% endwith %}
+<div class="card my-3">
+    
+{% if request.user|has_group:"record_viewing_privileges" %}
+        <h2 class="card-header bg-warning">
+        All {{ skill.strskills.count }} employees strong in this skill
+        </h2>
+        <div class="card-body">
+        {% with skill.strskills.all as record_list %}
+            {% include "covidskills/table_records.html" %}
+        {% endwith %}
+{% elif request.user in supervisors %}
+        <h2 class="card-header bg-warning">My staff strong in this skill</h2>
+        <div class="card-body">
+        {% with skill.strskills.all as record_list %}
+            {% include "covidskills/table_records.html" %}
+        {% endwith %}
+        <h2>All {{ skill.strskills.count }} employees strong in this skill</h2>
+        {% with skill.strskills.all as record_list %}
+            {% include "covidskills/table_records_min.html" %}
+        {% endwith %}
+{% else %}
+        <h2 class="card-header bg-warning">
+        All {{ skill.strskills.count }} employees strong in this skill
+        </h2>
+        <div class="card-body">
+        {% with skill.strskills.all as record_list %}
+            {% include "covidskills/table_records_min.html" %}
+        {% endwith %}
+{% endif %}
+</div>
+</div>
 
 
-
+<div class="card my-3">
+    
+{% if request.user|has_group:"record_viewing_privileges" %}
+        <h2 class="card-header bg-warning">
+        All {{ skill.regskills.count }} employees with this skill
+        </h2>
+        <div class="card-body">
+        {% with skill.regskills.all as record_list %}
+            {% include "covidskills/table_records.html" %}
+        {% endwith %}
+{% elif request.user in supervisors %}
+        <h2 class="card-header bg-warning">My staff with this skill</h2>
+        <div class="card-body">
+        {% with skill.regskills.all as record_list %}
+            {% include "covidskills/table_records.html" %}
+        {% endwith %}
+        <h2>All {{ skill.regskills.count }} employees with this skill</h2>
+        {% with skill.regskills.all as record_list %}
+            {% include "covidskills/table_records_min.html" %}
+        {% endwith %}
+{% else %}
+        <h2 class="card-header bg-warning">
+        All {{ skill.regskills.count }} employees with this skill
+        </h2>
+        <div class="card-body">
+        {% with skill.regskills.all as record_list %}
+            {% include "covidskills/table_records_min.html" %}
+        {% endwith %}
+{% endif %}
+</div>
+</div>
 
 </br></br>
 

@@ -39,6 +39,10 @@ urlpatterns = [
         views.UserAutocomplete.as_view(),
         name='autocomplete-user',
         ),
+    path('autocomplete-division', 
+        views.DivisionAutocomplete.as_view(),
+        name='autocomplete-division',
+        ),
 
 
     # detail views
@@ -47,7 +51,7 @@ urlpatterns = [
     path('tags/<int:pk>', views.TagDetailView.as_view(), name='tag-view'),
     path('records/<int:pk>', views.RecordDetailView.as_view(), name='record-view'),
     path('projects/<int:pk>', views.ProjectDetailView.as_view(), name='project-view'),
-    
+    path('divisions/<int:pk>', views.DivisionDetailView.as_view(), name='division-view'),
     
     # create views
     path('skills/add', views.SkillCreateView.as_view(), name='skill-add'),
@@ -66,8 +70,11 @@ urlpatterns = [
     path('tags/update/<int:pk>', views.TagUpdateView.as_view(), 
          name='tag-update'
     ),
-    path('records/update/<int:pk>', views.RecordUpdateView.as_view(), 
+    path('records/update/<int:pk>', views.RecordOwnerUpdateView.as_view(), 
          name='record-update'
+    ),
+    path('records/superupdate/<int:pk>', views.RecordSupervisorUpdateView.as_view(), 
+         name='record-superupdate'
     ),
     path('records/assign/<int:pk>', views.AssignmentUpdateView.as_view(), 
          name='record-assign'
@@ -75,7 +82,10 @@ urlpatterns = [
     path('projects/update/<int:pk>', views.ProjectUpdateView.as_view(), 
          name='project-update'
     ),
-   
+    path('divisions/update/<int:pk>', views.DivisionUpdateView.as_view(), 
+         name='division-update'
+    ),
+    
     # search view:
     path('search/all', views.FullSearch.as_view(), name="full-search"),
     

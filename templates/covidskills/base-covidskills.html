@@ -35,7 +35,7 @@ body { padding-top: 55px; }
             {# ## ### CATALOG HOME PAGE ### ## #}
             <li class="nav-item active">
               <a class="nav-link btn-outline-light"
-                 href="{% url 'covidskills:index' %}">COVID Skill Repo</a>
+                 href="{% url 'covidskills:index' %}">COVID Skill Inventory</a>
             </li>
             
             {# ## ### DROPDOWN ITEM INDEX PAGE LINKS ### ## #}
@@ -48,11 +48,9 @@ body { padding-top: 55px; }
                 </a>
             <div class="dropdown-menu" aria-labelledby="DCDropdown">
                 <a class="dropdown-item" href="{% url 'covidskills:skills' %}">
-                    Skills</a>
-                {% if request.user|has_group:"record_viewing_privileges" %}
+                    Skills catalog</a>
                 <a class="dropdown-item" href="{% url 'covidskills:records' %}">
-                    Skillset records</a>
-                {% endif %}
+                    Employee skill records</a>
                 <a class="dropdown-item" href="{% url 'covidskills:fields' %}">
                     Fields of Study</a>
                 <a class="dropdown-item" href="{% url 'covidskills:projects' %}">
@@ -99,13 +97,13 @@ body { padding-top: 55px; }
                 </a>
             <div class="dropdown-menu" aria-labelledby="ActionsDropdown">
                 <a class="dropdown-item" href="{% url 'covidskills:skill-add' %}">
-                    Skillset</a>
+                    Skill</a>
                 <a class="dropdown-item" href="{% url 'covidskills:field-add' %}">
                     Field of Study</a>
                 <a class="dropdown-item" href="{% url 'covidskills:tag-add' %}">
                     Tag</a>
                 <a class="dropdown-item" href="{% url 'covidskills:record-add' %}">
-                    Skillset Record</a>
+                    Employee skill record</a>
                 <a class="dropdown-item" href="{% url 'covidskills:project-add' %}">
                     Project</a>
 

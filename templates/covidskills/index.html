@@ -33,19 +33,17 @@
 
     <a type="button" 
     class="btn btn-primary" 
-    href="{% url 'covidskills:fields' %}">View {{ field_count }} fields</a>
+    href="{% url 'covidskills:fields' %}">View {{ field_count }} fields of study</a>
 
-    {% if request.user|has_group:"dua_viewing_privileges" %}
     <a type="button" 
     class="btn btn-primary" 
-    href="{% url 'covidskills:records' %}">View {{ record_count }} skillset records</a>
-    {% endif %}
+    href="{% url 'covidskills:records' %}">View {{ record_count }} employee skill records</a>
 
     <a type="button" 
     class="btn btn-primary" 
     href="{% url 'covidskills:projects' %}">View {{ project_count }} projects</a>
 
-    {% if request.user|has_group:"dua_viewing_privileges" %}
+    {% if request.user|has_group:"record_viewing_privileges" %}
     <a type="button" 
     class="btn btn-primary" 
     href="{% url 'covidskills:tags' %}">View {{tag_count }} tags</a>

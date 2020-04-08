@@ -1,14 +1,14 @@
 from dal import autocomplete
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Submit, Layout, Div, Fieldset, HTML
+from crispy_forms.layout import Submit, Layout, Div, Fieldset, HTML, Field
 
 from django import forms
 
 from django.utils.translation import gettext_lazy as _
 
 from persons.models import Person
-from .models import Skill, StudyField, Tag, Project, RecordSheet
+from .models import Skill, StudyField, Tag, Project, RecordSheet, Division
 
 div_skills = Div(
                     Div('skillsets',
@@ -37,6 +37,17 @@ div_name = Div(
                     css_class="row"
 )
 
+
+div_super = Div(
+                Div('supervisor',
+                    css_class='col-4',
+                ),
+                Div('recorddivision',
+                    css_class='col-8',
+                ),
+                css_class="row"
+)
+
 def three_equal(ONE,TWO,THREE):
     div_thirds = Div(
                         Div(ONE,
@@ -52,9 +63,9 @@ def three_equal(ONE,TWO,THREE):
     )
     return div_thirds
 
-class RecordForm(forms.ModelForm):
+class RecordSupervisorForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
-        super(RecordForm, self).__init__(*args, **kwargs)
+        super(RecordSupervisorForm, self).__init__(*args, **kwargs)
         self.fields['cwid'].label = "CWID"
         #self.fields['cwid'].initial = self.request.user
         self.fields['recordname'].label = "Full name"
@@ -68,7 +79,7 @@ class RecordForm(forms.ModelForm):
         self.helper.layout = Layout(
                     Fieldset('<div class="alert alert-info">User availability</div>',
                             div_name,
-                            'supervisor',
+                            div_super,
                             three_equal("remotetime", "deferdays","deferlimit"),
                             "deferimpact",
                             style="font-weight: bold;",
@@ -89,7 +100,8 @@ class RecordForm(forms.ModelForm):
         model = RecordSheet
         fields = [  'cwid',
                     'recordname',
-                    'supervisor', 
+                    'supervisor',
+                    'recorddivision', 
                     'bestnumber',
                     "remotetime", 
                     "deferdays",
@@ -112,9 +124,65 @@ class RecordForm(forms.ModelForm):
                                         ),  
                     'supervisor' : autocomplete.ModelSelect2(
                                         url='covidskills:autocomplete-user'
-                                        ),                                                         
+                                        ),    
+                    'recorddivision' : autocomplete.ModelSelect2(
+                                        url='covidskills:autocomplete-division'
+                                        ),                                                                            
                     }
 
+
+class RecordOwnerForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(RecordOwnerForm, self).__init__(*args, **kwargs)
+        self.fields['cwid'].label = "CWID"
+        self.fields['recordname'].label = "Full name"
+        self.fields['skillsets'].label = "Employee skills"
+        self.fields['fieldstrained'].label = "Fields you have a tertiary qualification in (Bachelors, Masters, PhD, etc)"
+        self.helper = FormHelper()
+        self.helper.form_id = 'recordForm'
+        self.helper.form_method = 'post'
+        self.helper.add_input(Submit('submit', 'Submit'))
+        self.helper.layout = Layout(
+                    Field('cwid', readonly=True),
+                    Fieldset('<div class="alert alert-info">User details for ' + "{} ({})".format(self.instance.recordname, self.instance.cwid) + '</div>',
+                            'recordname',
+                            'bestnumber',
+                            style="font-weight: bold;",
+                    ),
+                    Fieldset('<div class="alert alert-info">Skills and Training</div>',
+                            div_skills,
+                            'strongskills',
+                            'fieldstrained',
+                            style="font-weight: bold;",
+                    ),
+                    Fieldset('<div class="alert alert-info">Comments</div>',
+                            'comments',
+                            style="font-weight: bold;"
+                    ),        
+        )
+    
+    class Meta:
+        model = RecordSheet
+        fields = [  'cwid',
+                    'recordname',
+                    'bestnumber',
+                    'skillsets',
+                    'strongskills',
+                    'fieldstrained', 
+                    'comments', 
+                ]
+
+        widgets =  {'skillsets' : autocomplete.ModelSelect2Multiple(
+                                        url='covidskills:autocomplete-skill'
+                                        ),
+                    'strongskills' : autocomplete.ModelSelect2Multiple(
+                                        url='covidskills:autocomplete-skill'
+                                        ),
+                    'fieldstrained' : autocomplete.ModelSelect2Multiple(
+                                        url='covidskills:autocomplete-field'
+                                        ),                                                                              
+                    }
+                    
 class AssignmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AssignmentForm, self).__init__(*args, **kwargs)

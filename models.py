@@ -8,6 +8,36 @@ from django.contrib.auth.models import User
 
 from persons.models import Person, Department, Organization, Role 
 
+class Division(models.Model):
+    """
+    A class to allow creation of department subgroups for assignment.
+    """
+    # date the record was created
+    record_creation = models.DateField(auto_now_add=True)
+    
+    # date the record was most recently modified
+    record_update = models.DateField(auto_now=True)
+    
+    # the user who was signed in at time of record modification
+    record_author = models.ForeignKey(User, on_delete=models.CASCADE)
+ 
+    # keyword
+    divisionname = models.CharField(max_length=64)
+    
+    # definition / elaboration of keyword
+    divisiondefinition = models.TextField(null=True, blank=True)
+
+    # this is set to true after being checked by the Data Catalog curation team
+    curated = models.BooleanField(null=True, blank=True)
+
+    # field to designate whether data should be published
+    published = models.BooleanField(null=True, blank=True)
+
+    def __str__(self):
+        return "{}".format(self.divisionname,)
+
+    def get_absolute_url(self):
+        return reverse('covidskills:division-view', kwargs={'pk': self.pk})
 
 class Tag(models.Model):
     """
@@ -192,26 +222,18 @@ class RecordSheet(models.Model):
     # the user who was signed in at time of record modification
     record_author = models.ForeignKey(User, on_delete=models.CASCADE, 
                                       related_name="author_user")
- 
-    # workload spent on COVID-related activities (direct and indirect) 
-    workloadcovid = models.IntegerField("COVID workload (%)")
-    
-    # workload spent on normal duties
-    workloadother = models.IntegerField("Regular workload (%)")
-    
-    # time spent on 'filler' tasks or other replaceable activities
-    workloadidle = models.IntegerField("Availability (%)")
-    
+     
     # number of days (rounded) that a person is working remotely
-    remotetime = models.PositiveIntegerField("Days working remote (round up)", null=True, blank=True)
+    remotetime = models.PositiveIntegerField("Days working remote (round up)", 
+                                             null=True, blank=True)
     
     # number of days each week a person could defer to work on COVID tasks
     deferdays = models.PositiveIntegerField("Days each week that can be deferred", 
-                                    null=True, blank=True)
+                                             null=True, blank=True)
     
     # maximum number of weeks a person can defer their work
     deferlimit = models.PositiveIntegerField("Max weeks able to be deferred", 
-                                     null=True, blank=True)
+                                             null=True, blank=True)
     
     # impact of deferring the person by this amount of time
     deferimpact = models.TextField("Impact of deferring work", 
@@ -255,6 +277,13 @@ class RecordSheet(models.Model):
                                     related_name="record_supervisor",
                                     null=True, 
                                     blank=True)
+    
+    # the division/group the individual belongs to
+    recorddivision =  models.ForeignKey(Division, 
+                                        verbose_name="Division/group",
+                                        on_delete=models.PROTECT, 
+                                        null=True, 
+                                        blank=True)
     
     # projects that the user has been assigned to
     assignedprojects = models.ManyToManyField(Project, blank=True)

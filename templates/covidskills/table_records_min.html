@@ -5,23 +5,21 @@
     <tr>
         <th>Name</th>
         <th>CWID</th>
-        <th>Days remote</th>
-        <th>Days deferrable</th>
-        <th>Max deferrable time (weeks)</th>
+        <th>Supervisor</th>
+        <th>Skills listed</th>
+        <th>Strong skills listed</th>
         <th>Projects assigned to</th>
     </tr>
 </thead>
 
 {% for r in record_list %}
-    {% if request.user|has_group:"record_viewing_privileges" or r.supervisor == request.user or view_privileges == "full" %}
         <tr>
         <td><a href="{% url 'covidskills:record-view' r.pk %}">{{ r.recordname }}</a></td>
         <td> {{ r.cwid }}</td>
-        <td> {{ r.remotetime }}</td>
-        <td> {{ r.deferdays }}</td>
-        <td> {{ r.deferlimit }}</td>
+        <td> {{ r.supervisor }}</td>
+        <td> {{ r.skillsets.count }}</td>
+        <td> {{ r.strongskills.count }}</td>
         <td> {{ r.assignedprojects.count }}</td>
         </tr>
-    {% endif %}
 {% endfor %}
 </table>

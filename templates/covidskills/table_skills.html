@@ -4,6 +4,7 @@
     <tr>
         <th>Name</th>
         <th>Definition</th>
+        <th>Staff with skill</th>
     </tr>
 </thead>
 
@@ -11,6 +12,7 @@
     <tr>
     <td><a href="{% url 'covidskills:skill-view' sk.pk %}">{{ sk.skillname }}</a></td>
     <td> {{ sk.skilldefinition|linebreaks }}</td>
+    <td> {{ sk.regskills.count|add:sk.strskills.count }}</td>
     </tr>
 {% endfor %}
 </table>

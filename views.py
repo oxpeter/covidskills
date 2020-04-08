@@ -1,6 +1,6 @@
 from dal import autocomplete
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from django.views import generic
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, FormView
@@ -11,11 +11,45 @@ from django.contrib.auth.models import User
 
 from django.urls import reverse_lazy, reverse
 
-from .models import Skill, Tag, StudyField, Project, RecordSheet
+from django.http import Http404
+from .models import Skill, Tag, StudyField, Project, RecordSheet, Division
 
-from .forms import ProjectForm, RecordForm, AssignmentForm
+from .forms import ProjectForm, RecordSupervisorForm, RecordOwnerForm, AssignmentForm
 
 import six 
+
+##################################
+######  SELF-UPDATE MIXIN   ######
+##################################
+
+class UserIsRecordOwner(object):
+     """Verify that the current user is the owner of the Record."""
+     def dispatch(self, request, *args, **kwargs):
+         record = get_object_or_404(RecordSheet, pk=kwargs['pk'])
+         if record.cwid != request.user.username:
+             raise Http404
+         return super(UserIsRecordOwner, self).dispatch(request, *args, **kwargs)
+
+class UserIsRecordSupervisor(object):
+     """Verify that the current user is the owner of the Record."""
+     def dispatch(self, request, *args, **kwargs):
+         record = get_object_or_404(RecordSheet, pk=kwargs['pk'])
+         if record.supervisor != request.user:
+             raise Http404
+         return super(UserIsRecordSupervisor, self).dispatch(request, *args, **kwargs)
+
+class UserIsSupervisor(object):
+    """Verify that the current user is the owner of the Record."""
+    def dispatch(self, request, *args, **kwargs):
+        records = RecordSheet.objects.filter(published=True
+                                    ).filter(supervisor=request.user
+                                    ).count()
+        
+        if records < 1:
+             raise Http404
+        return super(UserIsSupervisor, self).dispatch(request, *args, **kwargs)
+
+
 
 ####################################
 ######  AUTOCOMPLETE  VIEWS   ######
@@ -64,7 +98,14 @@ class ProjectAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
             ) 
         return qs
 
+class DivisionAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        qs = Division.objects.filter(published=True)
 
+        if self.q:
+            qs =  qs.filter(divisionname__icontains=self.q) 
+        return qs
+        
 class UserAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
     def get_result_label(self, item):
         return "{} {} ({})".format(item.first_name, item.last_name, item.username) 
@@ -80,6 +121,7 @@ class UserAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
                             Q(last_name__icontains=self.q)
             ) 
         return qs
+        
 ###################
 ### Index views ###
 ###################
@@ -143,9 +185,17 @@ class RecordIndexView(PermissionRequiredMixin, generic.ListView):
         return records
         
     def get_context_data(self, **kwargs):
+        records = RecordSheet.objects.filter(published=True)
+        
+        # get list of all unique person supervisors
+        supervisors = records.order_by('supervisor'
+                            ).values_list('supervisor', flat=True
+                            ).distinct(
+                            )
+        
         context = super(RecordIndexView, self).get_context_data(**kwargs)
         context.update({
-                        'empty_list'    : [],  
+                        'supervisors' : list(supervisors),  
         })
         return context
         
@@ -262,7 +312,16 @@ class ProjectDetailView(LoginRequiredMixin, generic.DetailView):
         })
         return context
 
-
+class DivisionDetailView(LoginRequiredMixin, generic.DetailView):
+    model = Division
+    template_name = 'covidskills/detail_division.html'
+    
+    def get_context_data(self, **kwargs):
+        
+        context = super(DivisionDetailView, self).get_context_data(**kwargs)
+        context.update({'empty_list'    : [],  
+        })
+        return context
 
 ####################
 ### Create views ###
@@ -315,22 +374,26 @@ class TagCreateView(LoginRequiredMixin, CreateView):
         self.object.save()
         return super(TagCreateView, self).form_valid(form)
 
-class RecordCreateView(LoginRequiredMixin, CreateView):
+class RecordCreateView(UserIsSupervisor, LoginRequiredMixin, CreateView):
     model = RecordSheet
-    form_class = RecordForm
+    form_class = RecordSupervisorForm
     template_name = "covidskills/basic_crispy_form.html"
     # default success_url should be to the object page defined in model.
     
+    """
     def get_initial(self):
         #return super(RecordCreateView, self).get_initial(form)
         return { 'cwid': self.request.user,
                  'recordname' : self.request.user.get_full_name(),
-         }
+        }
+    """    
     
     def form_valid(self, form):
         self.object = form.save(commit=False)
         # update who last edited record
         self.object.record_author = self.request.user
+        # set publish to true
+        self.object.published = True
         self.object.save()
         return super(RecordCreateView, self).form_valid(form)
 
@@ -344,6 +407,8 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         self.object = form.save(commit=False)
         # update who last edited record
         self.object.record_author = self.request.user
+        # set publish to true
+        self.object.published = True
         self.object.save()
         return super(ProjectCreateView, self).form_valid(form)
 
@@ -377,10 +442,16 @@ class TagUpdateView(PermissionRequiredMixin, UpdateView):
     ]
     permission_required = 'covidskills.change_tag'
   
-class RecordUpdateView(LoginRequiredMixin, UpdateView):
+class RecordSupervisorUpdateView(UserIsRecordSupervisor, LoginRequiredMixin, UpdateView):
     model = RecordSheet
-    form_class = RecordForm
+    form_class = RecordSupervisorForm
     template_name = "covidskills/basic_crispy_form.html"
+
+class RecordOwnerUpdateView(UserIsRecordOwner, LoginRequiredMixin, UpdateView):
+    model = RecordSheet
+    form_class = RecordOwnerForm
+    template_name = "covidskills/basic_crispy_form.html"
+
 
 class AssignmentUpdateView(LoginRequiredMixin, UpdateView):
     "This is a record update view with limited fields"
@@ -388,12 +459,19 @@ class AssignmentUpdateView(LoginRequiredMixin, UpdateView):
     form_class = AssignmentForm
     template_name = "covidskills/basic_crispy_form.html"
     
-    
 class ProjectUpdateView(PermissionRequiredMixin, UpdateView):
     model = Project
     form_class = ProjectForm
     template_name = "covidskills/basic_crispy_form.html"
     permission_required = 'covidskills.change_project'
+
+class DivisionUpdateView(PermissionRequiredMixin, UpdateView):
+    model = Division
+    fields = [  'divisionname',
+                'divisiondefinition',
+    ]
+    template_name = "covidskills/basic_form.html"
+    permission_required = 'covidskills.change_division'
  
  
 ##############################

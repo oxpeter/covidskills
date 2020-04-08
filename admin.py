@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Skill, StudyField, Tag, RecordSheet, Project
+from .models import Skill, StudyField, Tag, RecordSheet, Project, Division
 
 # customize the look of the admin site:
 admin.site.site_header = 'Covid Skillsets and Projects Management Page'
@@ -58,14 +58,15 @@ class TagAdmin(admin.ModelAdmin):
 @admin.register(RecordSheet)
 class RecordSheetAdmin(admin.ModelAdmin):
     list_display = ("recordname", 
-                    "workloadcovid",
-                    "workloadother",
-                    "workloadidle",
                     "bestnumber",
                     "curated",
                     "published",
     )
-    list_filter = ('curated', 'published','workloadidle')
+    list_filter =  ('curated', 
+                    'published',
+                    'supervisor', 
+                    'recorddivision'
+                    )
     search_fields = ('recordname', 'comments')
     actions = [make_published, make_unpublished, make_curated]
 
@@ -81,3 +82,12 @@ class ProjectAdmin(admin.ModelAdmin):
     search_fields = ('projectname', 'projectdefinition', 'pi')
     actions = [make_published, make_unpublished, make_curated]
     
+@admin.register(Division)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ("divisionname", 
+                    "curated",
+                    "published",
+    )
+    list_filter = ('curated', 'published',)
+    search_fields = ('divisionname',)
+    actions = [make_published, make_unpublished, make_curated]
