@@ -9,6 +9,7 @@
         <th>Days deferrable</th>
         <th>Max deferrable time (weeks)</th>
         <th>Projects assigned to</th>
+        <th>Update</th>
     </tr>
 </thead>
 
@@ -21,6 +22,12 @@
         <td> {{ r.deferdays }}</td>
         <td> {{ r.deferlimit }}</td>
         <td> {{ r.assignedprojects.count }}</td>
+        <td>
+            <a  type="button" 
+                class="btn btn-primary" 
+                href="{% url 'covidskills:record-superupdate' r.pk %}">
+                Update</a>
+        </td>
         </tr>
     {% endif %}
 {% endfor %}

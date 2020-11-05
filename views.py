@@ -33,10 +33,13 @@ class UserIsRecordOwner(object):
 class UserIsRecordSupervisor(object):
      """Verify that the current user is the owner of the Record."""
      def dispatch(self, request, *args, **kwargs):
-         record = get_object_or_404(RecordSheet, pk=kwargs['pk'])
-         if record.supervisor != request.user:
-             raise Http404
-         return super(UserIsRecordSupervisor, self).dispatch(request, *args, **kwargs)
+        record = get_object_or_404(RecordSheet, pk=kwargs['pk'])
+         
+        if request.user.has_perm('covidskills.change_recordsheet'):
+            pass
+        elif record.supervisor != request.user:
+            raise Http404
+        return super(UserIsRecordSupervisor, self).dispatch(request, *args, **kwargs)
 
 class UserIsSupervisor(object):
     """Verify that the current user is the owner of the Record."""
@@ -45,11 +48,11 @@ class UserIsSupervisor(object):
                                     ).filter(supervisor=request.user
                                     ).count()
         
-        if records < 1:
+        if request.user.has_perm('covidskills.change_recordsheet'):
+            pass
+        elif records < 1:
              raise Http404
         return super(UserIsSupervisor, self).dispatch(request, *args, **kwargs)
-
-
 
 ####################################
 ######  AUTOCOMPLETE  VIEWS   ######
@@ -137,7 +140,15 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         return ds
         
     def get_context_data(self, **kwargs):
+        # get the record for the user
         own_record = RecordSheet.objects.filter(cwid=self.request.user)
+        
+        # get records of any staff user supervises
+        staff_records = RecordSheet.objects.filter(supervisor=self.request.user
+                                          ).order_by('recordname'
+                                          )
+        
+        # get counts of other classes
         skill_count = Skill.objects.filter(published=True).count()
         record_count = RecordSheet.objects.filter(published=True).count()
         tag_count = Tag.objects.filter(published=True).count()
@@ -147,6 +158,7 @@ class IndexView(LoginRequiredMixin, generic.ListView):
         context = super(IndexView, self).get_context_data(**kwargs)
         context.update({ 
                         'own_record'     : own_record,
+                        'staff_records'  : staff_records,
                         'skill_count'    : skill_count, 
                         'record_count'   : record_count,
                         'tag_count'      : tag_count,
@@ -162,8 +174,9 @@ class SkillIndexView(LoginRequiredMixin, generic.ListView):
     context_object_name = 'skill_list'
 
     def get_queryset(self):
-        ds = Skill.objects.filter(published=True)
-        # ds.sort()
+        ds = Skill.objects.filter(published=True
+                         ).order_by('skillname'
+                         )
         return ds
         
     def get_context_data(self, **kwargs):
@@ -173,12 +186,11 @@ class SkillIndexView(LoginRequiredMixin, generic.ListView):
         })
         return context
         
-class RecordIndexView(PermissionRequiredMixin, generic.ListView):
+class RecordIndexView(LoginRequiredMixin, generic.ListView):
     login_url='/login/'
     
     template_name = 'covidskills/index_records.html'
     context_object_name = 'record_list'
-    permission_required = 'covidskills.view_recordsheet'
 
     def get_queryset(self):
         records = RecordSheet.objects.filter(published=True)
@@ -187,15 +199,28 @@ class RecordIndexView(PermissionRequiredMixin, generic.ListView):
     def get_context_data(self, **kwargs):
         records = RecordSheet.objects.filter(published=True)
         
+        # get records of any staff user supervises
+        staff_records = RecordSheet.objects.filter(supervisor=self.request.user
+                                          ).order_by('recordname'
+                                          )
+
         # get list of all unique person supervisors
         supervisors = records.order_by('supervisor'
                             ).values_list('supervisor', flat=True
                             ).distinct(
                             )
         
+        # determine if user is a supervisor
+        if staff_records.count() < 1:
+            is_supervisor = False
+        else:
+            is_supervisor = True
+        
         context = super(RecordIndexView, self).get_context_data(**kwargs)
         context.update({
-                        'supervisors' : list(supervisors),  
+                        'supervisors'  : list(supervisors), 
+                        'is_supervisor': is_supervisor,
+                        'staff_records': staff_records, 
         })
         return context
         
@@ -242,7 +267,8 @@ class ProjectIndexView(LoginRequiredMixin, generic.ListView):
     context_object_name = 'project_list'
 
     def get_queryset(self):
-        prjs = Project.objects.filter(published=True)
+        prjs = Project.objects.filter(published=True
+                             ).order_by('projectname')
 
         return prjs
         

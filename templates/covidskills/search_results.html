@@ -28,15 +28,13 @@
 <h5>No results found among fields of study</h5>
 {% endif %}
 
-{% if request.user|has_group:"record_viewing_privileges" %}
 {% if qs_records|length > 0 %}
 <h2>Skill records</h2>
 {% with qs_records as record_list %}
-    {% include "covidskills/table_records.html" %}
+    {% include "covidskills/table_records_min.html" %}
 {% endwith %}
 {% else %}
 <h5>No results found among record sheets</h5>
-{% endif %}
 {% endif %}
 
 {% if qs_projects|length > 0 %}

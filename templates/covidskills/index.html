@@ -15,16 +15,7 @@
   border-radius: 4px 4px 0 0;
 }
 </style>
-<div class="card bg-dark py-3 px-3 my-2">
-{% if own_record|length == 0 %}
-<a type="button" class="btn btn-danger" href="{% url 'covidskills:record-add' %}">Create my skill record</a>
-{% else %}
-    {% for record in own_record %}
-    <a type="button" class="btn btn-danger my-2" href="{% url 'covidskills:record-update' record.pk %}">Update my skill record</a>
-    <a type="button" class="btn btn-warning my-2" href="{% url 'covidskills:record-view' record.pk %}">View my skill record</a>
-    {% endfor %}
-{% endif %}
-</div>
+
 
 <div class="d-flex justify-content-around">
     <a type="button" 
@@ -51,28 +42,36 @@
 </div>
 </br>
 </br>
-{{ uservals }}
+
+
+<div class="card bg-dark py-3 px-3 my-2">
+{% if own_record|length == 0 %}
+<a type="button" class="btn btn-danger" href="{% url 'covidskills:record-add' %}">Create my skill record</a>
+{% else %}
+    {% for record in own_record %}
+    <a type="button" class="btn btn-warning my-2" href="{% url 'covidskills:record-view' record.pk %}">View my skill record</a>
+    {% endfor %}
+{% endif %}
+</div>
+
+
 <div class="container">
-{% for project in project_list %}
-    
-     <div class="card">
-      <div class="card-header">
-        <a href="{% url 'covidskills:project-view' project.pk %}">
-            <h4>{{ project.projectname }} ({{ project.pi }})</h4>
-        </a>
-      </div>
-      <div class="card-body">
-            <h5>{{ project.recordsheet_set.count }} people assigned</h5>
-            <p> {{ project.projectdefinition|linebreaks }}</p>
-        
-            <h5>Skills required:</h5>
-            {% with project.skillsrequired.all as skill_list %}
-                {% include "covidskills/table_skills.html" %}
-            {% endwith %}
-       
-      </div>
-     </div>
-{% endfor %}  
+
+{% if staff_records.count >= 1 %}
+<div class="card my-4">
+    <h2 class="card-header bg-warning">Skill records for my staff</h2>
+<div class="card-body">    
+    {% with staff_records as record_list %}    
+        {{ record_list }}
+        {% include "covidskills/table_records.html" %}
+    {% endwith %}
+</div>
+</div>
+{% endif %}
+
+
+
+
 </div>
 
 {% endblock %}

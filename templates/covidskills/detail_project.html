@@ -63,7 +63,7 @@
 </div>
 </div>
 
-
+{% comment %}
 <div class="card my-3">
 <div class="card-body">
     <h3>People assigned to this project</h3>
@@ -78,6 +78,7 @@
     {% endif %}
 </div>
 </div>
+{% endcomment %}
 
 <div class="card my-3">
     <h3 class="card-header bg-warning">
@@ -89,11 +90,11 @@
         <h5>{{ sk.skillname }}:</h5>
         {% if sk.strskills.count >= 1 %}
             {% if request.user == project.pi or request.user|has_group:"record_viewing_privileges" %}
-                {% with record_list=sk.strskills.all view_privileges="full" %}
+                {% with record_list=sk.strskills_set.all view_privileges="full" %}
                     {% include "covidskills/table_records.html" %}
                 {% endwith %}
             {% else %}
-                {% with sk.strskills.all as record_list %}
+                {% with sk.strskills_set.all as record_list %}
                     {% include "covidskills/table_records_min.html" %}
                 {% endwith %}
             {% endif %}
@@ -112,11 +113,11 @@
         <h5>{{ sk.skillname }}:</h5>
         {% if sk.regskills.count >= 1 %}
             {% if request.user == project.pi or request.user|has_group:"record_viewing_privileges" %}
-                {% with record_list=sk.regskills.all view_privileges="full" %}
+                {% with record_list=sk.regskills_set.all view_privileges="full" %}
                     {% include "covidskills/table_records.html" %}
                 {% endwith %}
             {% else %}
-                {% with sk.regskills.all as record_list %}
+                {% with sk.regskills_set.all as record_list %}
                     {% include "covidskills/table_records_min.html" %}
                 {% endwith %}
             {% endif %}
@@ -124,7 +125,6 @@
     {% endfor %}
 </div>
 </div>
-
 
 
 {% if request.user|has_group:"record_viewing_privileges" %}

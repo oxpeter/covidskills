@@ -170,12 +170,16 @@
 
 
 
+{% if request.user.username == recordsheet.cwid %}
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:record-update' recordsheet.pk %}">Update my record details</a>
+{% endif %}
+
+
 {% if request.user|has_group:"record_viewing_privileges" or request.user == recordsheet.supervisor %}
-<a type="button" class="btn btn-primary" href="{% url 'covidskills:record-update' recordsheet.pk %}">Update record details</a>
+<a type="button" class="btn btn-primary" href="{% url 'covidskills:record-superupdate' recordsheet.pk %}">Update record details</a>
 
 <a type="button" class="btn btn-info" href="{% url 'covidskills:record-assign' recordsheet.pk %}">Assign individual to project(s)</a>
 {% endif %}
-
 </br></br>
 
 

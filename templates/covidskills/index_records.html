@@ -4,19 +4,16 @@
 
 {% block content %}
 
-
 {% if request.user|has_group:"record_viewing_privileges" %}
         <h2>All {{ record_list|length }} employee skill records</h2>
         {% include "covidskills/table_records.html" %}
-{% elif request.user.pk in supervisors %}
+{% elif is_supervisor  %}
         <h2>Skill records for my staff</h2>
-        {% include "covidskills/table_records.html" %}
-
-        <h2>All {{ record_list|length }} employee skill records</h2>
-        {% include "covidskills/table_records_min.html" %}
-{% else %}
-        <h2>All {{ record_list|length }} skill records</h2>
-        {% include "covidskills/table_records_min.html" %}
+        {% with staff_records as record_list %}
+            {% include "covidskills/table_records.html" %}
+        {% endwith %}
+        
+        
 {% endif %}
 
 
